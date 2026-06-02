@@ -18,8 +18,6 @@ import QuickToolbar from './QuickToolbar';
 import ErrorOverlay from './ErrorOverlay';
 import styles from './ViewerCanvas.module.css';
 
-// ── Tone mapping map ──────────────────────────────────────────────────────────
-
 const TONE_MAP = {
   aces: THREE.ACESFilmicToneMapping,
   linear: THREE.LinearToneMapping,
@@ -53,9 +51,11 @@ export default function ViewerCanvas() {
   const { state } = useViewer();
   const isMobile = useIsMobile();
 
-  // Mobile starts at 0.75 DPR — half the pixels of a 1.5 desktop start.
-  // Desktop starts at 1.5. PerformanceMonitor will lower either if FPS drops.
-  const [dpr, setDpr] = useState(() => isMobile ? 0.75 : 1.5);
+  // Use the device's native pixel ratio (capped at 2) so the model is crisp
+  // on Retina / high-DPI mobile screens. The PerformanceMonitor only lowers
+  // this if the device genuinely cannot maintain acceptable frame rate.
+  const nativeDpr = Math.min(window.devicePixelRatio || 1, 2);
+  const [dpr, setDpr] = useState(nativeDpr);
 
   const [resetCamera, setResetCamera] = useState(0);
 
@@ -63,13 +63,14 @@ export default function ViewerCanvas() {
     setResetCamera((n) => n + 1);
   }, []);
 
-  const bgColor   = BG_COLORS[state.background] ?? '#0f1117';
+  const bgColor     = BG_COLORS[state.background] ?? '#0f1117';
   const toneMapping = TONE_MAP[state.toneMapping] ?? THREE.ACESFilmicToneMapping;
 
-  // "demand" renders only when the user interacts (OrbitControls calls
-  // invalidate() on every pointer/touch event). "always" keeps a continuous
-  // loop, which auto-rotate needs. This alone massively reduces GPU usage on
-  // mobile when the model is just sitting still.
+  // KEY PERFORMANCE WIN — no quality impact at all:
+  // "demand" renders only when OrbitControls detects input (it calls
+  // invalidate() on every touch/pointer event). When nothing moves the GPU
+  // is completely idle. "always" re-enables the continuous loop for
+  // auto-rotate.
   const frameloop = state.autoRotate ? 'always' : 'demand';
 
   return (
@@ -78,55 +79,53 @@ export default function ViewerCanvas() {
       <QuickToolbar onReset={() => setResetCamera((n) => n + 1)} />
 
       <Canvas
-        // Shadows are expensive on mobile GPU — skip them entirely
-        shadows={!isMobile}
-        dpr={dpr}
-        frameloop={frameloop}
+        shadows                   // shadows on for all devices
+        dpr={dpr}                 // native device DPR, capped at 2×
+        frameloop={frameloop}     // idle when not interacting
         camera={{ position: [0, 1, 4], fov: 45, near: 0.01, far: 1000 }}
         gl={{
+          antialias: true,        // full antialiasing on all devices
           toneMapping,
           toneMappingExposure: state.exposure,
-          // Antialiasing doubles GPU fragment work — disable on mobile
-          antialias: !isMobile,
           preserveDrawingBuffer: false,
-          // Allow R3F to drop pixel ratio automatically during heavy frames
-          powerPreference: 'default',
         }}
-        // Let R3F scale DPR down to 50 % of the set value under load
+        // Allow R3F to lower DPR automatically during sustained heavy frames
         performance={{ min: 0.5 }}
         style={{ background: bgColor }}
         className={styles.canvas}
       >
-        {/* ── Performance monitor ─────────────────────────────────────────── */}
+        {/* ── Adaptive DPR — last resort fallback only ─────────────────────
+            Starts optimistic (full quality). Only fires after 3 consecutive
+            "decline" readings, meaning the device is genuinely struggling.
+            Restores quality as soon as FPS recovers.                       */}
         <PerformanceMonitor
-          // React quickly to declining FPS
-          onDecline={() => setDpr(isMobile ? 0.5 : 1)}
-          // Restore gradually once FPS is stable again
-          onIncline={() => setDpr(isMobile ? 0.75 : 1.5)}
-          // Give the monitor 60 frames to measure before acting
           flipflops={3}
           threshold={0.75}
-          factor={1}
+          onDecline={() => setDpr((prev) => Math.max(1, +(prev - 0.25).toFixed(2)))}
+          onIncline={() => setDpr(nativeDpr)}
         />
 
         <Suspense fallback={<LoadingOverlay />}>
           {/* Lighting */}
           <LightRig preset={state.lightPreset} />
 
-          {/* Image-based lighting — skip on mobile to save texture memory */}
-          {!isMobile && <Environment preset="city" />}
+          {/* Full image-based lighting on all devices */}
+          <Environment preset="city" />
 
           {/* Model + grid + axes */}
           <ModelScene resetCamera={resetCamera} />
 
-          {/* Ground shadow — expensive secondary render pass, desktop only */}
-          {!isMobile && state.loadingState === 'loaded' && (
+          {/* Contact shadows — lower internal resolution on mobile.
+              The shadow is blurred anyway so 256 vs 512 is imperceptible
+              on a small screen, but saves a full render-pass worth of memory. */}
+          {state.loadingState === 'loaded' && (
             <ContactShadows
               position={[0, -1, 0]}
               opacity={0.4}
               scale={10}
               blur={2}
               far={4}
+              resolution={isMobile ? 256 : 512}
             />
           )}
 
@@ -134,17 +133,15 @@ export default function ViewerCanvas() {
           <OrbitControls
             makeDefault
             enableDamping
-            // Lower damping on mobile = faster response to touch
-            dampingFactor={isMobile ? 0.15 : 0.08}
+            dampingFactor={0.08}
             autoRotate={state.autoRotate}
             autoRotateSpeed={state.autoRotateSpeed}
             minDistance={0.1}
             maxDistance={100}
             enablePan
-            panSpeed={isMobile ? 0.6 : 0.8}
-            zoomSpeed={isMobile ? 1.0 : 1.2}
-            // Slightly faster rotate on mobile so small swipes feel responsive
-            rotateSpeed={isMobile ? 1.0 : 0.8}
+            panSpeed={0.8}
+            zoomSpeed={1.2}
+            rotateSpeed={isMobile ? 1.2 : 0.8}
             touches={{
               ONE: THREE.TOUCH.ROTATE,
               TWO: THREE.TOUCH.DOLLY_PAN,
