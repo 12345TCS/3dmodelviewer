@@ -54,8 +54,7 @@ export default function InfoPanel() {
 
       <SectionCard title="About" defaultOpen={false}>
         <p className={styles.note}>
-          Built with <strong>React Three Fiber</strong> and <strong>Three.js</strong>.
-          Supports interactive orbit controls, model inspection, scene customisation, and more.
+          Built for internal use of <strong> Cloud magician artist team</strong>
         </p>
       </SectionCard>
     </>
