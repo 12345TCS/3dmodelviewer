@@ -1,0 +1,130 @@
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inputLabel {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.urlInput {
+  width: 100%;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 12px;
+  padding: 8px 10px;
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--transition);
+  line-height: 1.6;
+}
+
+.urlInput:focus {
+  border-color: var(--accent);
+}
+
+.urlInput::placeholder {
+  color: var(--text-muted);
+}
+
+.error {
+  font-size: 12px;
+  color: var(--error);
+  background: rgba(255, 95, 95, 0.08);
+  border: 1px solid rgba(255, 95, 95, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+
+.loadBtn {
+  width: 100%;
+  padding: 10px;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background var(--transition), opacity var(--transition);
+}
+
+.loadBtn:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.loadBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.samples {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sample {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 12px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--transition);
+}
+
+.sample:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--text-primary);
+  background: var(--accent-dim);
+}
+
+.sample.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.sample:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sampleDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
