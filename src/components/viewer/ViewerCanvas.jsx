@@ -51,10 +51,9 @@ export default function ViewerCanvas() {
   const { state } = useViewer();
   const isMobile = useIsMobile();
 
-  // Use the device's native pixel ratio (capped at 2) so the model is crisp
-  // on Retina / high-DPI mobile screens. The PerformanceMonitor only lowers
-  // this if the device genuinely cannot maintain acceptable frame rate.
-  const nativeDpr = Math.min(window.devicePixelRatio || 1, 2);
+  // Mobile DPR cap at 1.5 — full Retina clarity without 3× pixel overdraw.
+  // Desktop cap at 2. PerformanceMonitor lowers further only under real load.
+  const nativeDpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
   const [dpr, setDpr] = useState(nativeDpr);
 
   const [resetCamera, setResetCamera] = useState(0);
@@ -66,12 +65,11 @@ export default function ViewerCanvas() {
   const bgColor     = BG_COLORS[state.background] ?? '#0f1117';
   const toneMapping = TONE_MAP[state.toneMapping] ?? THREE.ACESFilmicToneMapping;
 
-  // KEY PERFORMANCE WIN — no quality impact at all:
-  // "demand" renders only when OrbitControls detects input (it calls
-  // invalidate() on every touch/pointer event). When nothing moves the GPU
-  // is completely idle. "always" re-enables the continuous loop for
-  // auto-rotate.
-  const frameloop = state.autoRotate ? 'always' : 'demand';
+  // On mobile: always run the render loop so touch input is never dropped.
+  // iOS Safari and some Android browsers don't reliably trigger a re-render
+  // from OrbitControls' invalidate() call, causing the model to freeze mid-drag.
+  // On desktop: "demand" keeps the GPU idle when the model is not moving.
+  const frameloop = (isMobile || state.autoRotate) ? 'always' : 'demand';
 
   return (
     <div className={styles.canvasWrapper} onDoubleClick={handleDoubleClick}>

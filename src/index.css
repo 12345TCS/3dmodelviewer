@@ -28,8 +28,17 @@
   --sidebar-w: 320px;
 }
 
-html, body {
+html {
+  /* dvh = dynamic viewport height — excludes browser chrome on mobile.
+     100vh on iOS Safari includes the address bar, making the canvas
+     taller than the visible area and clipping touch targets at the bottom. */
   height: 100%;
+  height: -webkit-fill-available;
+}
+
+body {
+  height: 100%;
+  min-height: -webkit-fill-available;
   background: var(--bg-base);
   color: var(--text-primary);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -37,6 +46,8 @@ html, body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
+  /* Stop pull-to-refresh on Android from interrupting a touch drag */
+  overscroll-behavior: none;
 }
 
 #root {

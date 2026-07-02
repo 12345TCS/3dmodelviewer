@@ -3,6 +3,14 @@
   height: 100%;
   position: relative;
   overflow: hidden;
+  /* Prevent the browser from stealing touch gestures for page scroll/zoom.
+     Without this on the WRAPPER (not just the canvas), iOS Safari intercepts
+     the touch before Three.js gets it, making drag and pinch unresponsive. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  /* Remove the blue tap flash on mobile */
+  -webkit-tap-highlight-color: transparent;
 }
 
 .canvas {
@@ -10,6 +18,7 @@
   width: 100% !important;
   height: 100% !important;
   touch-action: none;
+  outline: none;
 }
 
 /* Loading overlay inside canvas */
