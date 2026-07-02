@@ -51,9 +51,12 @@ export default function ViewerCanvas() {
   const { state } = useViewer();
   const isMobile = useIsMobile();
 
-  // Mobile DPR cap at 1.5 — full Retina clarity without 3× pixel overdraw.
-  // Desktop cap at 2. PerformanceMonitor lowers further only under real load.
-  const nativeDpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
+  // Mobile: DPR 1.0 — renders 1 pixel per CSS pixel.
+  // At DPR 1.5 a 390-wide phone renders 585px. Cutting to 1.0 = 390px,
+  // which is 55% fewer pixels per frame. On a small screen the difference
+  // is imperceptible but the frame time drops sharply.
+  // Desktop: native DPR capped at 2 for full Retina quality.
+  const nativeDpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 2);
   const [dpr, setDpr] = useState(nativeDpr);
 
   const [resetCamera, setResetCamera] = useState(0);
@@ -65,10 +68,9 @@ export default function ViewerCanvas() {
   const bgColor     = BG_COLORS[state.background] ?? '#0f1117';
   const toneMapping = TONE_MAP[state.toneMapping] ?? THREE.ACESFilmicToneMapping;
 
-  // On mobile: always run the render loop so touch input is never dropped.
-  // iOS Safari and some Android browsers don't reliably trigger a re-render
-  // from OrbitControls' invalidate() call, causing the model to freeze mid-drag.
-  // On desktop: "demand" keeps the GPU idle when the model is not moving.
+  // Mobile: "always" loop so touch events are never dropped (iOS Safari
+  // doesn't reliably pick up invalidate() from OrbitControls).
+  // Desktop: "demand" keeps GPU idle when model is not moving.
   const frameloop = (isMobile || state.autoRotate) ? 'always' : 'demand';
 
   return (
@@ -77,61 +79,60 @@ export default function ViewerCanvas() {
       <QuickToolbar onReset={() => setResetCamera((n) => n + 1)} />
 
       <Canvas
-        shadows                   // shadows on for all devices
-        dpr={dpr}                 // native device DPR, capped at 2×
-        frameloop={frameloop}     // idle when not interacting
+        // ── Render pass budget ────────────────────────────────────────────
+        // Desktop: shadows ON  → 2 render passes (shadow map + main scene)
+        // Mobile:  shadows OFF → 1 render pass  (main scene only)
+        // Shadow maps alone account for ~40% of GPU time on mobile.
+        shadows={!isMobile}
+        dpr={dpr}
+        frameloop={frameloop}
         camera={{ position: [0, 1, 4], fov: 45, near: 0.01, far: 1000 }}
         gl={{
-          antialias: true,        // full antialiasing on all devices
+          // MSAA antialias doubles fragment shader work on every pixel.
+          // At DPR 1 on a small screen, aliasing is barely visible anyway.
+          antialias: !isMobile,
           toneMapping,
           toneMappingExposure: state.exposure,
           preserveDrawingBuffer: false,
         }}
-        // Allow R3F to lower DPR automatically during sustained heavy frames
         performance={{ min: 0.5 }}
         style={{ background: bgColor }}
         className={styles.canvas}
       >
-        {/* ── Adaptive DPR — last resort fallback only ─────────────────────
-            Starts optimistic (full quality). Only fires after 3 consecutive
-            "decline" readings, meaning the device is genuinely struggling.
-            Restores quality as soon as FPS recovers.                       */}
         <PerformanceMonitor
           flipflops={3}
           threshold={0.75}
-          onDecline={() => setDpr((prev) => Math.max(1, +(prev - 0.25).toFixed(2)))}
+          onDecline={() => setDpr((prev) => Math.max(0.75, +(prev - 0.25).toFixed(2)))}
           onIncline={() => setDpr(nativeDpr)}
         />
 
         <Suspense fallback={<LoadingOverlay />}>
-          {/* Lighting */}
+          {/* Lighting — model colours and materials unaffected by shadow toggle */}
           <LightRig preset={state.lightPreset} />
 
-          {/* Full image-based lighting on all devices */}
+          {/* IBL environment — keeps PBR reflections and metallic materials
+              looking correct on all devices */}
           <Environment preset="city" />
 
           {/* Model + grid + axes */}
           <ModelScene resetCamera={resetCamera} />
 
-          {/* Contact shadows — lower internal resolution on mobile.
-              The shadow is blurred anyway so 256 vs 512 is imperceptible
-              on a small screen, but saves a full render-pass worth of memory. */}
-          {state.loadingState === 'loaded' && (
+          {/* ContactShadows = 3rd render pass — desktop only */}
+          {!isMobile && state.loadingState === 'loaded' && (
             <ContactShadows
               position={[0, -1, 0]}
               opacity={0.4}
               scale={10}
               blur={2}
               far={4}
-              resolution={isMobile ? 256 : 512}
+              resolution={512}
             />
           )}
 
-          {/* ── Orbit / pan / zoom controls ──────────────────────────────── */}
           <OrbitControls
             makeDefault
             enableDamping
-            dampingFactor={0.08}
+            dampingFactor={isMobile ? 0.2 : 0.08}
             autoRotate={state.autoRotate}
             autoRotateSpeed={state.autoRotateSpeed}
             minDistance={0.1}
@@ -139,7 +140,7 @@ export default function ViewerCanvas() {
             enablePan
             panSpeed={0.8}
             zoomSpeed={1.2}
-            rotateSpeed={isMobile ? 1.2 : 0.8}
+            rotateSpeed={isMobile ? 1.4 : 0.8}
             touches={{
               ONE: THREE.TOUCH.ROTATE,
               TWO: THREE.TOUCH.DOLLY_PAN,
@@ -148,7 +149,6 @@ export default function ViewerCanvas() {
         </Suspense>
       </Canvas>
 
-      {/* HUD hint bar */}
       <div className={styles.hints}>
         {isMobile
           ? 'Drag to rotate · Pinch to zoom · Two-finger drag to pan'
