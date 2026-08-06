@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useViewer } from '../../store/viewerStore';
 import { downloadAsset } from '../../utils/downloadAsset';
+import { detectFormat } from './useModelLoader';
 import styles from './QuickToolbar.module.css';
 
 const tools = [
@@ -14,6 +15,8 @@ export default function QuickToolbar({ onReset }) {
   const [downloading, setDownloading] = useState(false);
   if (state.loadingState !== 'loaded') return null;
 
+  const isPhoto = detectFormat(state.loadedUrl) === 'image';
+
   const handleDownload = async () => {
     if (!state.loadedUrl || downloading) return;
     setDownloading(true);
@@ -26,20 +29,24 @@ export default function QuickToolbar({ onReset }) {
 
   return (
     <div className={styles.toolbar}>
-      {tools.map((t) => (
+      {!isPhoto && tools.map((tool) => (
         <button
-          key={t.id}
-          className={`${styles.btn} ${state[t.stateKey] ? styles.active : ''}`}
-          title={t.title}
-          onClick={() => dispatch({ type: t.action })}
+          key={tool.id}
+          className={`${styles.btn} ${state[tool.stateKey] ? styles.active : ''}`}
+          title={tool.title}
+          onClick={() => dispatch({ type: tool.action })}
         >
-          {t.icon}
+          {tool.icon}
         </button>
       ))}
-      <div className={styles.sep} />
-      <button className={styles.btn} title="Reset camera" onClick={onReset}>
-        ⊙
-      </button>
+
+      {!isPhoto && <div className={styles.sep} />}
+      {!isPhoto && (
+        <button className={styles.btn} title="Reset camera" onClick={onReset}>
+          ⊙
+        </button>
+      )}
+
       <button
         className={styles.btn}
         title={downloading ? 'Downloading asset...' : 'Download asset'}

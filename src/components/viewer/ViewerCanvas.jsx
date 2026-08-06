@@ -16,6 +16,7 @@ import LightRig from './lights/LightRig';
 import EmptyState from './EmptyState';
 import QuickToolbar from './QuickToolbar';
 import ErrorOverlay from './ErrorOverlay';
+import { detectFormat } from './useModelLoader';
 import styles from './ViewerCanvas.module.css';
 
 const TONE_MAP = {
@@ -45,11 +46,34 @@ function LoadingOverlay() {
   );
 }
 
+function PhotoViewer({ url, loading, onLoad, onError }) {
+  return (
+    <div className={styles.photoViewer}>
+      {loading && (
+        <div className={styles.photoLoading}>
+          <div className={styles.loadingRing} />
+          <span>Loading photo...</span>
+        </div>
+      )}
+      <img
+        key={`${url}-${loading}`}
+        className={styles.photo}
+        src={url}
+        alt="Loaded asset"
+        onLoad={onLoad}
+        onError={onError}
+        draggable={false}
+      />
+    </div>
+  );
+}
+
 // ── Main canvas ───────────────────────────────────────────────────────────────
 
 export default function ViewerCanvas() {
-  const { state } = useViewer();
+  const { state, dispatch } = useViewer();
   const isMobile = useIsMobile();
+  const isPhoto = Boolean(state.loadedUrl) && detectFormat(state.loadedUrl) === 'image';
 
   // Mobile: DPR 1.0 — renders 1 pixel per CSS pixel.
   // At DPR 1.5 a 390-wide phone renders 585px. Cutting to 1.0 = 390px,
@@ -78,6 +102,14 @@ export default function ViewerCanvas() {
       {state.loadingState === 'idle' && <EmptyState />}
       <QuickToolbar onReset={() => setResetCamera((n) => n + 1)} />
 
+      {isPhoto ? (
+        <PhotoViewer
+          url={state.loadedUrl}
+          loading={state.loadingState === 'loading'}
+          onLoad={() => dispatch({ type: 'LOAD_SUCCESS' })}
+          onError={() => dispatch({ type: 'LOAD_ERROR', payload: 'The photo could not be loaded.' })}
+        />
+      ) : (
       <Canvas
         // ── Render pass budget ────────────────────────────────────────────
         // Desktop: shadows ON  → 2 render passes (shadow map + main scene)
@@ -148,12 +180,13 @@ export default function ViewerCanvas() {
           />
         </Suspense>
       </Canvas>
+      )}
 
-      <div className={styles.hints}>
+      {!isPhoto && <div className={styles.hints}>
         {isMobile
           ? 'Drag to rotate · Pinch to zoom · Two-finger drag to pan'
           : 'Drag to rotate · Scroll to zoom · Right-drag to pan · Double-click to reset'}
-      </div>
+      </div>}
 
       <ErrorOverlay />
     </div>
