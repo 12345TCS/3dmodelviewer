@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useViewer } from '../../store/viewerStore';
 import { preCheckUrl } from '../../utils/modelErrorParser';
+import { resolveModelInput } from '../../data/modelCatalog';
 import SectionCard from '../ui/SectionCard';
 import styles from './ModelPanel.module.css';
 
@@ -28,8 +29,17 @@ export default function ModelPanel() {
   const [inputUrl, setInputUrl] = useState(state.modelUrl);
 
   const handleLoad = async () => {
-    const url = inputUrl.trim();
-    if (!url) return;
+    const input = inputUrl.trim();
+    if (!input) return;
+
+    const url = resolveModelInput(input);
+    if (!url) {
+      dispatch({
+        type: 'LOAD_ERROR',
+        payload: `No model was found for code "${input.toUpperCase()}". Check the code and try again.`,
+      });
+      return;
+    }
 
     // Signal "loading" immediately so the button shows a spinner
     dispatch({ type: 'LOAD_START', payload: url });
@@ -58,10 +68,10 @@ export default function ModelPanel() {
     <>
       <SectionCard title="Load Model">
         <div className={styles.inputGroup}>
-          <label className={styles.inputLabel}>Model URL (.glb / .gltf)</label>
+          <label className={styles.inputLabel}>Model code or URL (.glb / .gltf / .obj / .stl)</label>
           <textarea
             className={styles.urlInput}
-            placeholder="https://example.com/model.glb"
+            placeholder="Enter a code (for example ANI001) or model URL"
             value={inputUrl}
             onChange={(e) => setInputUrl(e.target.value)}
             onKeyDown={handleKeyDown}

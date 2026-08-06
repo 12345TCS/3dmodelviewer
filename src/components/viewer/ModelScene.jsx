@@ -2,6 +2,7 @@ import React, { useRef, useEffect, Suspense } from 'react';
 import { useThree, useLoader } from '@react-three/fiber';
 import { useGLTF, Grid, GizmoHelper, GizmoViewport } from '@react-three/drei';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 import * as THREE from 'three';
 import { useViewer } from '../../store/viewerStore';
 import { useLoadCallback, detectFormat } from './useModelLoader';
@@ -57,11 +58,40 @@ function ObjModel({ url, wireframe }) {
   return <primitive object={obj} />;
 }
 
+function StlModel({ url, wireframe }) {
+  const geometry = useLoader(STLLoader, url);
+  const mesh = useRef();
+  const { onLoad, onError } = useLoadCallback();
+
+  useEffect(() => {
+    try {
+      geometry.computeVertexNormals();
+      geometry.center();
+      fitObject(mesh.current);
+      onLoad();
+    } catch (e) {
+      onError(e);
+    }
+  }, [geometry]); // eslint-disable-line
+
+  return (
+    <mesh ref={mesh} geometry={geometry} castShadow receiveShadow>
+      <meshStandardMaterial
+        color="#b8c0cc"
+        roughness={0.65}
+        metalness={0.05}
+        wireframe={wireframe}
+      />
+    </mesh>
+  );
+}
+
 // ── Format router ─────────────────────────────────────────────────────────────
 
 function ModelRouter({ url, wireframe }) {
   const fmt = detectFormat(url);
   if (fmt === 'obj') return <ObjModel url={url} wireframe={wireframe} />;
+  if (fmt === 'stl') return <StlModel url={url} wireframe={wireframe} />;
   return <GltfModel url={url} wireframe={wireframe} />;
 }
 
