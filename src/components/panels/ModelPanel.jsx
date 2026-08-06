@@ -68,10 +68,10 @@ export default function ModelPanel() {
     <>
       <SectionCard title="Load Model">
         <div className={styles.inputGroup}>
-          <label className={styles.inputLabel}>Model code or URL (.glb / .gltf / .obj / .stl)</label>
+          <label className={styles.inputLabel}>Code, model URL, or image URL</label>
           <textarea
             className={styles.urlInput}
-            placeholder="Enter a code (for example ANI001) or model URL"
+            placeholder="Enter a code (for example ANI001 or 1012) or URL"
             value={inputUrl}
             onChange={(e) => setInputUrl(e.target.value)}
             onKeyDown={handleKeyDown}

@@ -86,12 +86,39 @@ function StlModel({ url, wireframe }) {
   );
 }
 
+function ImageModel({ url }) {
+  const texture = useLoader(THREE.TextureLoader, url);
+  const { onLoad, onError } = useLoadCallback();
+  const image = texture.image;
+  const aspect = image?.width && image?.height ? image.width / image.height : 1;
+  const width = aspect >= 1 ? 2 : 2 * aspect;
+  const height = aspect >= 1 ? 2 / aspect : 2;
+
+  useEffect(() => {
+    try {
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.needsUpdate = true;
+      onLoad();
+    } catch (e) {
+      onError(e);
+    }
+  }, [texture]); // eslint-disable-line
+
+  return (
+    <mesh>
+      <planeGeometry args={[width, height]} />
+      <meshBasicMaterial map={texture} toneMapped={false} side={THREE.DoubleSide} />
+    </mesh>
+  );
+}
+
 // ── Format router ─────────────────────────────────────────────────────────────
 
 function ModelRouter({ url, wireframe }) {
   const fmt = detectFormat(url);
   if (fmt === 'obj') return <ObjModel url={url} wireframe={wireframe} />;
   if (fmt === 'stl') return <StlModel url={url} wireframe={wireframe} />;
+  if (fmt === 'image') return <ImageModel url={url} />;
   return <GltfModel url={url} wireframe={wireframe} />;
 }
 

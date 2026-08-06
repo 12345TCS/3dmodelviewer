@@ -11,6 +11,7 @@ export function detectFormat(url) {
   if (lower.endsWith('.obj')) return 'obj';
   if (lower.endsWith('.fbx')) return 'fbx';
   if (lower.endsWith('.stl')) return 'stl';
+  if (/\.(png|jpe?g|webp|gif|bmp|avif)$/.test(lower)) return 'image';
   // Fallback: try gltf
   return 'gltf';
 }

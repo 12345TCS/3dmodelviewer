@@ -1,4 +1,5 @@
 const MODEL_CATALOG = {
+  1012: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1012.png',
   ANI001: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/ANI001(GOJO_SARUTO_HALF).stl',
   ANI002: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/ANI002(KAKASHI_HALF).stl',
   ANI003: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/ANI003(NAROTO_ACTION).stl',
