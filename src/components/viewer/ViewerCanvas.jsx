@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useCallback, useEffect } from 'react';
+import React, { Suspense, useState, useCallback, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import {
   OrbitControls,
@@ -48,12 +48,50 @@ function LoadingOverlay() {
 
 function PhotoViewer({ url, loading, onLoad, onError }) {
   const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const dragStart = useRef(null);
   const clampZoom = (value) => Math.min(5, Math.max(0.25, value));
 
-  useEffect(() => { setZoom(1); }, [url]);
+  useEffect(() => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  }, [url]);
+
+  useEffect(() => {
+    if (zoom <= 1) setPan({ x: 0, y: 0 });
+  }, [zoom]);
 
   const changeZoom = (amount) => {
     setZoom((current) => clampZoom(Number((current + amount).toFixed(2))));
+  };
+
+  const resetView = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  const handlePointerDown = (event) => {
+    if (zoom <= 1) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragStart.current = { pointerX: event.clientX, pointerY: event.clientY, ...pan };
+    setDragging(true);
+  };
+
+  const handlePointerMove = (event) => {
+    if (!dragStart.current) return;
+    setPan({
+      x: dragStart.current.x + event.clientX - dragStart.current.pointerX,
+      y: dragStart.current.y + event.clientY - dragStart.current.pointerY,
+    });
+  };
+
+  const handlePointerUp = (event) => {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    dragStart.current = null;
+    setDragging(false);
   };
 
   const handleWheel = (event) => {
@@ -69,7 +107,13 @@ function PhotoViewer({ url, loading, onLoad, onError }) {
           <span>Loading photo...</span>
         </div>
       )}
-      <div className={styles.photoStage}>
+      <div
+        className={`${styles.photoStage} ${zoom > 1 ? styles.photoPannable : ''} ${dragging ? styles.photoDragging : ''}`}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+      >
         <img
           key={`${url}-${loading}`}
           className={styles.photo}
@@ -77,16 +121,16 @@ function PhotoViewer({ url, loading, onLoad, onError }) {
           alt="Loaded asset"
           onLoad={onLoad}
           onError={onError}
-          onDoubleClick={() => setZoom(1)}
+          onDoubleClick={resetView}
           draggable={false}
-          style={{ transform: `scale(${zoom})` }}
+          style={{ transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoom})` }}
         />
       </div>
 
       {!loading && (
         <div className={styles.photoZoomControls} aria-label="Photo zoom controls">
           <button type="button" onClick={() => changeZoom(-0.25)} disabled={zoom <= 0.25} aria-label="Zoom out">−</button>
-          <button type="button" className={styles.zoomValue} onClick={() => setZoom(1)} title="Reset zoom">
+          <button type="button" className={styles.zoomValue} onClick={resetView} title="Reset zoom and position">
             {Math.round(zoom * 100)}%
           </button>
           <button type="button" onClick={() => changeZoom(0.25)} disabled={zoom >= 5} aria-label="Zoom in">+</button>

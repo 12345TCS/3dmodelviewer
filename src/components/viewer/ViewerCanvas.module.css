@@ -41,6 +41,15 @@
   padding: 24px;
   box-sizing: border-box;
   overflow: hidden;
+  touch-action: none;
+}
+
+.photoPannable {
+  cursor: grab;
+}
+
+.photoDragging {
+  cursor: grabbing;
 }
 
 .photo {
@@ -54,6 +63,11 @@
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
   transform-origin: center;
   transition: transform 0.15s ease-out;
+  pointer-events: none;
+}
+
+.photoDragging .photo {
+  transition: none;
 }
 
 .photoZoomControls {
