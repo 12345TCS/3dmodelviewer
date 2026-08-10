@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useCallback } from 'react';
+import React, { Suspense, useState, useCallback, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import {
   OrbitControls,
@@ -47,23 +47,51 @@ function LoadingOverlay() {
 }
 
 function PhotoViewer({ url, loading, onLoad, onError }) {
+  const [zoom, setZoom] = useState(1);
+  const clampZoom = (value) => Math.min(5, Math.max(0.25, value));
+
+  useEffect(() => { setZoom(1); }, [url]);
+
+  const changeZoom = (amount) => {
+    setZoom((current) => clampZoom(Number((current + amount).toFixed(2))));
+  };
+
+  const handleWheel = (event) => {
+    event.preventDefault();
+    changeZoom(event.deltaY < 0 ? 0.25 : -0.25);
+  };
+
   return (
-    <div className={styles.photoViewer}>
+    <div className={styles.photoViewer} onWheel={handleWheel}>
       {loading && (
         <div className={styles.photoLoading}>
           <div className={styles.loadingRing} />
           <span>Loading photo...</span>
         </div>
       )}
-      <img
-        key={`${url}-${loading}`}
-        className={styles.photo}
-        src={url}
-        alt="Loaded asset"
-        onLoad={onLoad}
-        onError={onError}
-        draggable={false}
-      />
+      <div className={styles.photoStage}>
+        <img
+          key={`${url}-${loading}`}
+          className={styles.photo}
+          src={url}
+          alt="Loaded asset"
+          onLoad={onLoad}
+          onError={onError}
+          onDoubleClick={() => setZoom(1)}
+          draggable={false}
+          style={{ transform: `scale(${zoom})` }}
+        />
+      </div>
+
+      {!loading && (
+        <div className={styles.photoZoomControls} aria-label="Photo zoom controls">
+          <button type="button" onClick={() => changeZoom(-0.25)} disabled={zoom <= 0.25} aria-label="Zoom out">−</button>
+          <button type="button" className={styles.zoomValue} onClick={() => setZoom(1)} title="Reset zoom">
+            {Math.round(zoom * 100)}%
+          </button>
+          <button type="button" onClick={() => changeZoom(0.25)} disabled={zoom >= 5} aria-label="Zoom in">+</button>
+        </div>
+      )}
     </div>
   );
 }

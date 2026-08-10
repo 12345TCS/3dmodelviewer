@@ -8,7 +8,8 @@ const MODEL_CATALOG = {
   2004: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/boyDoctor.glb',
   SU001: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/saska.glb',
   2003: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/hanuman.glb',
-  2003: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/hanuman.glb'
+  2003: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/hanuman.glb',
+  1001: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1001.png'
 };
 
 export function resolveModelInput(input) {
