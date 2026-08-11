@@ -9,7 +9,22 @@ const MODEL_CATALOG = {
   SU001: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/saska.glb',
   2003: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/hanuman.glb',
   2003: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/hanuman.glb',
-  1001: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1001.png'
+  1001: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1001.png',
+  ANI001: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/ANI001.glb',
+  ANI002: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/ANI002.glb',
+  ANI004: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/ANI004.glb',
+  ANI006: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/ANI006.glb',
+  ANI008: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/ANI008.glb',
+  ANI009: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/ANI009.glb',
+  ANI012: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/ANI012.glb',
+  ANI015: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/ANI015.glb',
+  DMM001: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/DMM001.glb',
+  DWM001: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/DWM001.glb',
+  FIM001: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/FIM001.glb',
+  FLM001: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/FLM001.glb',
+  MDR002: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/MDR002.glb',
+  MPM001: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/MPM001.glb',
+  WDR002: 'https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/painting/WDR002.glb',
 };
 
 export function resolveModelInput(input) {
