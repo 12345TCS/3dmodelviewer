@@ -44,6 +44,9 @@ const MODEL_CATALOG = {
   1027: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1027.png",
   1028: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1028.png",
   1029: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1029.png",
+  10301: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1030-1.png",
+  10302: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1030-2.png",
+  1031: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1031.png",
 };
 
 export function resolveModelInput(input) {
