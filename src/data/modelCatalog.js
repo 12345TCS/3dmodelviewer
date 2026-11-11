@@ -51,6 +51,8 @@ const MODEL_CATALOG = {
   1033: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1033.png",
   1034: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1034.png",
   1035: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1035.png",
+  1036: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1036.png",
+  1037: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1037.png",
   1041: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1041.png",
 };
 
