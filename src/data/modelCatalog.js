@@ -58,6 +58,8 @@ const MODEL_CATALOG = {
   1045: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1045.png",
   10461: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/10461.png",
   10462: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/10462.png",
+  1047: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1047.png",
+
 };
 
 export function resolveModelInput(input) {
