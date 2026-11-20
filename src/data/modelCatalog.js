@@ -65,6 +65,8 @@ const MODEL_CATALOG = {
   1052: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1052.png",
   1053: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1053.png",
   1054: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/1054.png",
+  10551: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/10551.png",
+  10552: "https://miniaturewala-prod-sgp1-assets.sgp1.cdn.digitaloceanspaces.com/readymademiniature/10552.png"
 };
 
 export function resolveModelInput(input) {
@@ -72,5 +74,5 @@ export function resolveModelInput(input) {
   if (/^https?:\/\//i.test(value)) return value;
   return MODEL_CATALOG[value.toUpperCase()] ?? null;
 }
-
+  
 export default MODEL_CATALOG;
